@@ -1,0 +1,208 @@
+/**
+ * RAGGAE Web UI - Styles
+ *
+ * Modern dark/light theme with CSS variables for the RAGGAE interface.
+ * Responsive design with accessible color schemes and smooth transitions.
+ *
+ * Design Features:
+ * - Automatic dark/light mode based on system preference
+ * - Adservio brand colors (orange accent: #FF9802)
+ * - Glassmorphism effects with backdrop blur
+ * - Responsive layout with CSS Grid
+ *
+ * @author Dr. Olivier Vitrac, PhD, HDR
+ * @email olivier.vitrac@adservio.com
+ * @organization Adservio
+ * @date October 31, 2025
+ * @license MIT
+ */
+
+:root{
+  --bg: #0f1115;
+  --panel: #151821;
+  --panel-2:#1b2030;
+  --text: #e6e6e6;
+  --muted:#a8b0c0;
+  --brand:#FF9802;   /* Adservio orange accent */
+  --accent:#4CAF50;  /* supportive green */
+  --stroke:#2a2f3e;
+  --shadow: 0 10px 30px rgba(0,0,0,.35);
+  --radius:14px;
+}
+
+@media (prefers-color-scheme: light){
+  :root{
+    --bg:#f7f8fb;
+    --panel:#ffffff;
+    --panel-2:#f2f4f8;
+    --text:#1b2130;
+    --muted:#556070;
+    --stroke:#e1e5ef;
+    --shadow: 0 8px 24px rgba(16, 24, 40, .08);
+  }
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; padding:0;
+  background:linear-gradient(160deg,var(--bg),#0b0d12 40%, var(--panel-2) 120%);
+  color:var(--text); font: 15px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+}
+
+.app-header{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:18px 24px; position:sticky; top:0; z-index:10;
+  backdrop-filter: blur(10px);
+  background:color-mix(in oklab, var(--panel) 90%, transparent);
+  border-bottom:1px solid var(--stroke);
+}
+.brand{display:flex; align-items:center; gap:14px}
+.logo{
+  width:42px; height:42px; border-radius:10px; display:grid; place-items:center;
+  background: radial-gradient(120% 120% at 20% 20%, var(--brand), #ffb34a 60%, #fff0d8);
+  color:#111; font-weight:800;
+  box-shadow: var(--shadow);
+}
+.titles h1{margin:0; font-size:20px; letter-spacing:.4px}
+.titles p{margin:2px 0 0; color:var(--muted); font-size:13px}
+
+.status{display:flex; align-items:center; gap:8px; color:var(--muted)}
+.dot{
+  width:10px; height:10px; border-radius:50%;
+  background:#999; box-shadow:0 0 0 3px rgba(0,0,0,.1) inset;
+}
+.dot-on{ background: var(--accent); }
+.dot-off{ background: #999; }
+
+.container{
+  max-width:1100px; margin:32px auto; padding: 0 16px;
+}
+
+.tabs{display:flex; gap:8px; margin-bottom:16px}
+.tab{
+  border:1px solid var(--stroke); background:var(--panel);
+  color:var(--text); padding:10px 14px; border-radius:10px; cursor:pointer;
+}
+.tab.active{ background: color-mix(in oklab, var(--brand) 18%, var(--panel) 82%); border-color: color-mix(in oklab, var(--brand) 35%, var(--stroke) 65%); }
+
+.tabpanel{ display:none; }
+.tabpanel.active{ display:block; }
+
+.card{
+  background:var(--panel); border:1px solid var(--stroke);
+  border-radius: var(--radius); padding:18px; box-shadow: var(--shadow);
+}
+.card h2{ margin-top:0 }
+
+.grid{
+  display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap:12px;
+  align-items:end;
+}
+label{ display:flex; flex-direction:column; gap:6px; font-weight:600; color:var(--muted) }
+label.inline{ flex-direction:row; align-items:center; gap:10px; margin-top:8px }
+
+input, textarea{
+  width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--stroke);
+  background:var(--panel-2); color:var(--text); outline:none;
+}
+textarea{ resize:vertical; }
+input:focus, textarea:focus{ border-color: color-mix(in oklab, var(--brand) 40%, var(--stroke) 60%) }
+
+.actions{ margin-top:8px }
+.btn{
+  appearance:none; border:none;
+  background:linear-gradient(180deg, color-mix(in oklab, var(--brand) 88%, #fff 12%), var(--brand));
+  color:#111; font-weight:700; padding:10px 16px; border-radius:12px; cursor:pointer;
+  box-shadow:0 6px 18px rgba(255,152,2,.25);
+}
+.btn:active{ transform: translateY(1px); }
+
+.output, .list{
+  margin-top:14px; background:var(--panel-2); border:1px solid var(--stroke);
+  border-radius:10px; padding:12px; overflow:auto;
+}
+.hit{
+  border-bottom:1px dashed var(--stroke); padding:10px 6px;
+}
+.hit:last-child{ border-bottom:none; }
+.muted{ color:var(--muted) }
+
+.app-footer{
+  text-align:center; color:var(--muted); padding:24px; margin-top:24px;
+  border-top:1px solid var(--stroke);
+}
+code{ background: color-mix(in oklab, var(--panel-2) 80%, #000 20%); padding:2px 6px; border-radius:6px; }
+
+/* uploader button */
+.uploader{ display:flex; align-items:center; gap:12px; margin-bottom:10px; flex-wrap:wrap }
+.uploader input[type=file]{ padding:8px; background:var(--panel-2); border:1px solid var(--stroke); border-radius:10px }
+
+#exts{
+  min-width:120px; height:auto;
+  background:var(--panel-2); color:var(--text);
+  border:1px solid var(--stroke); border-radius:10px; padding:6px;
+}
+#exts option{ padding:4px 6px }
+
+
+/* drop zone */
+.dropzone{
+  width:100%; padding:20px; border:2px dashed var(--stroke);
+  border-radius:14px; display:flex; flex-direction:column; align-items:center; gap:8px;
+  background: color-mix(in oklab, var(--panel) 92%, var(--brand) 8%);
+}
+.dropzone.dragover{ border-color: var(--brand); background: color-mix(in oklab, var(--panel) 85%, var(--brand) 15%); }
+.pickers{ display:flex; gap:10px; flex-wrap:wrap; align-items:center }
+.btn-like{
+  display:inline-block; border:1px solid var(--stroke); border-radius:10px; padding:8px 12px;
+  background: var(--panel-2); cursor:pointer; user-select:none;
+}
+
+/* result badges */
+.rationale{
+  margin-top:6px; padding:8px 10px; border:1px solid var(--stroke);
+  background: color-mix(in oklab, var(--panel-2) 85%, #fff 15%);
+  border-radius:10px; font-size:13px; color: var(--text);
+}
+.badge{
+  display:inline-flex; align-items:center; gap:6px;
+  font-size:12px; font-weight:600; padding:3px 8px; border-radius:999px;
+  background: color-mix(in oklab, var(--panel-2) 80%, var(--brand) 20%);
+  border:1px solid var(--stroke);
+  margin-right:8px;
+}
+.badge .emoji{ font-size:14px }
+.badge.warn{
+  background: color-mix(in oklab, #ffcc00 35%, var(--panel-2) 65%);
+  border-color: color-mix(in oklab, #cc9900 45%, var(--stroke) 55%);
+}
+.fileline{
+  display:flex; align-items:center; gap:8px; margin:4px 0 6px;
+  color: var(--muted);
+}
+.filename{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+
+/* additional layout for results */
+details.eval {
+  margin-top:10px; border:1px solid var(--stroke); border-radius:10px;
+  background: var(--panel-2);
+}
+details.eval > summary {
+  cursor:pointer; padding:8px 10px; font-weight:600; list-style:none;
+}
+details.eval > summary::-webkit-details-marker { display:none; }
+.eval-list { padding:8px 10px; }
+.eval-item { border-top:1px dashed var(--stroke); padding:8px 0; }
+.eval-item:first-child { border-top:none; }
+.eval-head { display:flex; align-items:center; gap:8px; }
+.eval-rationale { margin-top:6px; padding:8px 10px; border:1px solid var(--stroke); border-radius:8px; font-size:13px; }
+.badge.label-Yes { background: color-mix(in oklab, #4CAF50 35%, var(--panel-2) 65%); }
+.badge.label-Partial { background: color-mix(in oklab, #ffc107 35%, var(--panel-2) 65%); }
+.badge.label-No { background: color-mix(in oklab, #e57373 35%, var(--panel-2) 65%); }
+
+/* export */
+#export-format{
+  border:1px solid var(--stroke); border-radius:10px; background:var(--panel-2);
+  color:var(--text); padding:8px 10px;
+}

@@ -1,0 +1,30 @@
+name: adservio-raggae
+channels:
+  - conda-forge
+  - pytorch
+  - nvidia
+dependencies:
+  - python=3.12
+  - spyder
+  # Core ML stack
+  - pytorch>=2.4
+  - pytorch-cuda=12.4  # uses LX-Olivier2023 NVIDIA GPU (CUDA 12.x)
+  - torchvision
+  - torchaudio
+  # RAG / retrieval
+  - faiss-cpu            # simple & stable; upgrade to faiss-gpu later if needed
+  - sentence-transformers
+  - numpy
+  - scipy
+  - scikit-learn
+  - tqdm
+  # PDF / parsing
+  - pymupdf              # (import as `fitz`)
+  - pypdf
+  # utils
+  - uvicorn
+  - rich
+  - pip
+  - pip:
+      - rank-bm25
+      - ollama           # python client for your local Ollama

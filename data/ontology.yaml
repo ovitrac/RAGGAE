@@ -1,0 +1,25 @@
+# RAGGAE/data/ontology.yaml
+# Minimal capability/standards ontology (extend freely)
+skills:
+  devops:
+    - gitlab
+    - github
+    - argocd
+    - helm
+    - terraform
+  mlops:
+    - mlflow
+    - kubernetes
+    - ray
+    - s3
+    - feast
+  security:
+    - iso_27001
+    - soc2
+    - rgpd
+    - key_management
+standards:
+  - ISO/IEC 27001
+  - SOC 2
+  - GDPR / RGPD
+  - ISO/IEC 27017

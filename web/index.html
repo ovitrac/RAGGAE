@@ -1,0 +1,180 @@
+<!doctype html>
+<!--
+RAGGAE Web UI
+Main interface for document indexing, semantic search, and compliance scoring.
+
+Single-page application built with vanilla JavaScript (no framework dependencies).
+Provides modern dark/light theme with responsive design and accessibility features.
+
+Author: Dr. Olivier Vitrac, PhD, HDR
+Email: olivier.vitrac@adservio.com
+Organization: Adservio
+Date: October 31, 2025
+License: MIT
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>RAGGAE • Adservio Tender AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+
+  <link rel="icon" href="data:image/svg+xml,\
+  <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>\
+    <circle cx='50' cy='50' r='48' fill='%23FF9802'/>\
+    <text x='50' y='58' font-size='54' text-anchor='middle' fill='white' font-family='Arial'>A</text>\
+  </svg>"/>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <div class="logo">A</div>
+      <div class="titles">
+        <h1>RAGGAE</h1>
+        <p>Adservio Tender AI — Index • Search • Quickscore</p>
+      </div>
+    </div>
+    <div class="status">
+      <span id="health-dot" class="dot dot-off"></span>
+      <span id="health-text">connecting…</span>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="tabs" role="tablist" aria-label="Primary">
+      <button class="tab active" data-tab="index">Index</button>
+      <button class="tab" data-tab="search">Search</button>
+      <button class="tab" data-tab="quickscore">Quickscore</button>
+    </nav>
+
+    <!-- Index -->
+    <section id="tab-index" class="tabpanel active" role="tabpanel">
+      <div class="uploader">
+        <div id="dropzone" class="dropzone">
+          <strong>Drop documents (pdf, docx, txt, odt, md) or a .zip here</strong>
+          <div class="muted">or</div>
+          <div class="pickers">
+            <label class="btn-like">
+              Pick files
+              <input type="file" id="pick-files" accept=".pdf,application/pdf,.zip,.docx,.txt,.odt,.md,text/plain,text/markdown,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.oasis.opendocument.text" multiple hidden />
+            </label>
+            <label class="btn-like">
+              Pick a folder
+              <input type="file" id="pick-folder" webkitdirectory directory multiple hidden />
+            </label>
+            <select id="exts" multiple size="5" title="Select extensions to index">
+              <option value="pdf" selected>pdf</option>
+              <option value="docx">docx</option>
+              <option value="txt">txt</option>
+              <option value="odt">odt</option>
+              <option value="md">md</option>
+            </select>
+            <button id="btn-upload" class="btn" type="button">Upload</button>
+          </div>
+        </div>
+        <span id="upload-status" class="muted"></span>
+      </div>     
+      <form id="form-index" class="grid" onsubmit="return false;">
+        <label>Upload key (session or file)
+          <input name="key" placeholder="(auto-filled after upload)" />
+        </label>
+        <label>Index prefix
+          <input name="index_path" placeholder="./tender.idx" required />
+        </label>
+        <label>Model
+          <input name="model" value="intfloat/multilingual-e5-small" />
+        </label>
+        <label class="inline">
+          <input type="checkbox" name="e5" checked /> Use E5 prefixes
+        </label>
+        <label>Min chars per block
+          <input type="number" name="min_chars" value="40" min="0" />
+        </label>
+        <div class="actions">
+          <button id="btn-index" class="btn">Index</button>
+        </div>
+      </form>
+      <pre id="out-index" class="output"></pre>
+    </section>
+
+    <!-- Search -->
+    <section id="tab-search" class="tabpanel" role="tabpanel">
+      <div class="card">
+        <h2>Semantic Search</h2>
+        <form id="form-search" class="grid" onsubmit="return false;">
+          <label>Index prefix
+            <input name="index_path" placeholder="./tender.idx" required />
+          </label>
+          <label>Query
+            <input name="query" placeholder="MLflow sur Kubernetes ISO 27001" required />
+          </label>
+          <label>K
+            <input type="number" name="k" value="10" min="1" />
+          </label>
+          <label>Model
+            <input name="model" value="intfloat/multilingual-e5-small" />
+          </label>
+          <label class="inline">
+            <input type="checkbox" name="e5" checked /> Use E5 prefixes
+          </label>
+          <div class="actions">
+            <button id="btn-search" class="btn">Search</button>
+          </div>
+        </form>
+        <div id="hits" class="list"></div>
+      </div>
+    </section>
+
+    <!-- Quickscore -->
+    <section id="tab-quickscore" class="tabpanel" role="tabpanel">
+      <div class="card">
+        <h2>Quickscore (NLI)</h2>
+        <p class="muted">Requires an <strong>Ollama</strong> model running locally (e.g., <code>mistral</code>).</p>
+        <form id="form-quickscore" class="grid" onsubmit="return false;">
+          <label>Index prefix
+            <input name="index_path" placeholder="./tender.idx" required />
+          </label>
+          <label>Requirements (one per line)
+            <textarea name="requirements" rows="5" placeholder="Provider must be ISO 27001 certified&#10;Platform uses MLflow for MLOps"></textarea>
+          </label>
+          <label>Top-k clauses per requirement
+            <input type="number" name="topk" value="5" min="1" />
+          </label>
+          <label>Ollama model
+            <input name="ollama_model" value="mistral" />
+          </label>
+          <label>Model
+            <input name="model" value="intfloat/multilingual-e5-small" />
+          </label>
+          <label class="inline">
+            <input type="checkbox" name="e5" checked /> Use E5 prefixes
+          </label>
+          <label>NLI Language (hint)
+            <select name="nli_lang">
+              <option value="auto" selected>auto</option>
+              <option value="en">en</option>
+              <option value="fr">fr</option>
+            </select>
+          </label>
+          <div class="actions" style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button id="btn-quickscore" class="btn">Compute</button>
+            <select id="export-format" title="Export format">
+              <option value="json">JSON</option>
+              <option value="csv">CSV</option>
+            </select>
+            <button id="btn-export" type="button" class="btn">Export</button>
+          </div>
+        </form>
+        <div id="quickscore-out" class="list"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <div>© <span id="year"></span> <strong>Adservio</strong> — RAGGAE (RAG for tenders) • Built with ❤️</div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
