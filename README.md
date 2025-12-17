@@ -13,7 +13,7 @@
 [![Python](https://img.shields.io/badge/Python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green.svg)](https://fastapi.tiangolo.com/)
-[![DeepWiki](assets/Docs-DeepWiki-purple.svg)](https://deepwiki.com/ovitrac/RAGGAE)
+[![DeepWiki](https://img.shields.io/badge/Docs-DeepWiki-purple.svg)](https://deepwiki.com/ovitrac/RAGGAE)
 
 ---
 
@@ -328,6 +328,7 @@ RAGGAE/
 │   └── labels/                    # Few-shot seeds (future)
 ├── uploads/                       # Upload storage (auto-created)
 ├── examples/                      # Example documents (optional)
+├── raggae-web                     # Web application launcher script
 ├── index.md                       # Original design document
 ├── README.md                      # This file
 ├── LICENSE                        # MIT License
@@ -549,10 +550,44 @@ ollama pull llama3:8b
 
 ### Web Application
 
-#### Start the API Server
+#### Quick Start with Launcher
+
+The recommended way to start the web application is using the `raggae-web` launcher script:
 
 ```bash
-uvicorn cli.demo_app:app --host 0.0.0.0 --port 8000 --reload
+# Start the server (default: http://localhost:8000)
+./raggae-web
+
+# Start and automatically open browser
+./raggae-web --open
+
+# Development mode with auto-reload and browser
+./raggae-web --reload --open
+
+# Custom port
+./raggae-web --port 8080 --open
+
+# Production mode with multiple workers
+./raggae-web --workers 4
+```
+
+The launcher automatically handles:
+- **PYTHONPATH** configuration for module imports
+- **Cross-platform browser opening** (`--open` flag):
+  - Linux: `xdg-open` (GNOME, KDE, etc.)
+  - macOS: `open`
+  - Windows: `start` (via Git Bash, MSYS2, WSL)
+- **Server readiness check** before opening browser
+- **SSL detection** for HTTPS URLs
+
+#### Manual Start (Alternative)
+
+If you prefer to use uvicorn directly:
+
+```bash
+# From the parent directory of RAGGAE
+cd /path/to/projects
+PYTHONPATH=. uvicorn RAGGAE.cli.demo_app:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 #### Access the UI

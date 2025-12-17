@@ -166,3 +166,4 @@ inject_global_menu.py
 
 # Claude files
 CLAUDE.md
+.claude/

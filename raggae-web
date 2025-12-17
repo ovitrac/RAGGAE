@@ -1,0 +1,188 @@
+#!/usr/bin/env bash
+# -----------------------------------------------------------------------------
+# raggae-web — Launcher for RAGGAE Web Application
+# Author: Olivier Vitrac, PhD, HDR | olivier.vitrac@adservio.fr | Adservio
+# Date: 2025-12-17
+# -----------------------------------------------------------------------------
+#
+# Usage:
+#   ./raggae-web [OPTIONS]
+#
+# All uvicorn options are supported. Default: --host 0.0.0.0 --port 8000
+#
+# Additional options:
+#   --open          Open browser automatically after server starts
+#   --no-open       Do not open browser (default)
+#
+# Examples:
+#   ./raggae-web                              # Default: 0.0.0.0:8000
+#   ./raggae-web --open                       # Start and open browser
+#   ./raggae-web --reload                     # With auto-reload for development
+#   ./raggae-web --reload --open              # Development mode with browser
+#   ./raggae-web --port 8080                  # Custom port
+#   ./raggae-web --host 127.0.0.1 --port 9000 # Custom host and port
+#   ./raggae-web --workers 4                  # Production with 4 workers
+#   ./raggae-web --ssl-keyfile key.pem --ssl-certfile cert.pem  # HTTPS
+#
+# -----------------------------------------------------------------------------
+
+set -e
+
+# Resolve script directory (works with symlinks)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+
+# Export PYTHONPATH to include parent directory for RAGGAE imports
+export PYTHONPATH="${PROJECT_ROOT}:${PYTHONPATH:-}"
+
+# Default options
+HOST="0.0.0.0"
+PORT="8000"
+OPEN_BROWSER=false
+
+# -----------------------------------------------------------------------------
+# Cross-platform browser opener
+# -----------------------------------------------------------------------------
+open_browser() {
+    local url="$1"
+
+    # Wait for server to be ready (max 10 seconds)
+    local max_attempts=20
+    local attempt=0
+    while [ $attempt -lt $max_attempts ]; do
+        if curl -s --head "$url" >/dev/null 2>&1; then
+            break
+        fi
+        sleep 0.5
+        attempt=$((attempt + 1))
+    done
+
+    if [ $attempt -eq $max_attempts ]; then
+        echo "Warning: Could not verify server is ready, opening browser anyway..."
+    fi
+
+    # Detect OS and open browser
+    case "$(uname -s)" in
+        Linux*)
+            # Linux: use xdg-open (works with most desktop environments)
+            if command -v xdg-open >/dev/null 2>&1; then
+                xdg-open "$url" >/dev/null 2>&1 &
+            elif command -v gnome-open >/dev/null 2>&1; then
+                gnome-open "$url" >/dev/null 2>&1 &
+            elif command -v kde-open >/dev/null 2>&1; then
+                kde-open "$url" >/dev/null 2>&1 &
+            else
+                echo "Warning: No browser opener found. Please open $url manually."
+            fi
+            ;;
+        Darwin*)
+            # macOS: use open command
+            open "$url" >/dev/null 2>&1 &
+            ;;
+        CYGWIN*|MINGW*|MSYS*|Windows*)
+            # Windows: use start command
+            cmd.exe /c start "$url" >/dev/null 2>&1 &
+            ;;
+        *)
+            echo "Warning: Unknown OS. Please open $url manually."
+            ;;
+    esac
+}
+
+# -----------------------------------------------------------------------------
+# Parse arguments
+# -----------------------------------------------------------------------------
+CUSTOM_HOST=false
+CUSTOM_PORT=false
+UVICORN_ARGS=()
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --open)
+            OPEN_BROWSER=true
+            shift
+            ;;
+        --no-open)
+            OPEN_BROWSER=false
+            shift
+            ;;
+        --host)
+            CUSTOM_HOST=true
+            HOST="$2"
+            UVICORN_ARGS+=("--host" "$2")
+            shift 2
+            ;;
+        --host=*)
+            CUSTOM_HOST=true
+            HOST="${1#*=}"
+            UVICORN_ARGS+=("$1")
+            shift
+            ;;
+        --port)
+            CUSTOM_PORT=true
+            PORT="$2"
+            UVICORN_ARGS+=("--port" "$2")
+            shift 2
+            ;;
+        --port=*)
+            CUSTOM_PORT=true
+            PORT="${1#*=}"
+            UVICORN_ARGS+=("$1")
+            shift
+            ;;
+        *)
+            UVICORN_ARGS+=("$1")
+            shift
+            ;;
+    esac
+done
+
+# Add defaults if not specified
+if [ "$CUSTOM_HOST" = false ]; then
+    UVICORN_ARGS=("--host" "$HOST" "${UVICORN_ARGS[@]}")
+fi
+
+if [ "$CUSTOM_PORT" = false ]; then
+    UVICORN_ARGS=("--port" "$PORT" "${UVICORN_ARGS[@]}")
+fi
+
+# Determine URL for browser
+# Use localhost for browser even if binding to 0.0.0.0
+if [ "$HOST" = "0.0.0.0" ]; then
+    BROWSER_HOST="localhost"
+else
+    BROWSER_HOST="$HOST"
+fi
+
+# Check for SSL to determine protocol
+PROTOCOL="http"
+for arg in "${UVICORN_ARGS[@]}"; do
+    if [[ "$arg" == "--ssl-keyfile"* ]] || [[ "$arg" == "--ssl-certfile"* ]]; then
+        PROTOCOL="https"
+        break
+    fi
+done
+
+URL="${PROTOCOL}://${BROWSER_HOST}:${PORT}"
+
+# Change to script directory for relative paths
+cd "$SCRIPT_DIR"
+
+# -----------------------------------------------------------------------------
+# Launch
+# -----------------------------------------------------------------------------
+echo "Starting RAGGAE Web Application..."
+echo "  PYTHONPATH: ${PYTHONPATH}"
+echo "  Working dir: ${SCRIPT_DIR}"
+echo "  URL: ${URL}"
+echo "  Command: uvicorn RAGGAE.cli.demo_app:app ${UVICORN_ARGS[*]}"
+echo ""
+
+# Open browser in background if requested
+if [ "$OPEN_BROWSER" = true ]; then
+    echo "Opening browser at ${URL}..."
+    (sleep 1 && open_browser "$URL") &
+fi
+
+# Launch uvicorn (exec replaces this shell)
+exec uvicorn RAGGAE.cli.demo_app:app "${UVICORN_ARGS[@]}"
