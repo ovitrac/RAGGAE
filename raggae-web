@@ -11,12 +11,12 @@
 # All uvicorn options are supported. Default: --host 0.0.0.0 --port 8000
 #
 # Additional options:
-#   --open          Open browser automatically after server starts
-#   --no-open       Do not open browser (default)
+#   --open          Open browser automatically after server starts (default)
+#   --no-open       Do not open browser
 #
 # Examples:
-#   ./raggae-web                              # Default: 0.0.0.0:8000
-#   ./raggae-web --open                       # Start and open browser
+#   ./raggae-web                              # Default: 0.0.0.0:8000, opens browser
+#   ./raggae-web --no-open                    # Start without opening browser
 #   ./raggae-web --reload                     # With auto-reload for development
 #   ./raggae-web --reload --open              # Development mode with browser
 #   ./raggae-web --port 8080                  # Custom port
@@ -38,7 +38,7 @@ export PYTHONPATH="${PROJECT_ROOT}:${PYTHONPATH:-}"
 # Default options
 HOST="0.0.0.0"
 PORT="8000"
-OPEN_BROWSER=false
+OPEN_BROWSER=true
 
 # -----------------------------------------------------------------------------
 # Cross-platform browser opener

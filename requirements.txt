@@ -1,0 +1,44 @@
+# RAGGAE Dependencies
+# Author: Dr. Olivier Vitrac, PhD, HDR
+# Organization: Adservio
+# Date: December 17, 2025
+
+# Core ML stack
+torch>=2.4
+torchvision
+torchaudio
+sentence-transformers>=2.2.0
+numpy
+scipy
+scikit-learn
+tqdm
+
+# Vector search
+faiss-cpu  # or faiss-gpu for CUDA support
+
+# Sparse retrieval
+rank-bm25
+
+# PDF / Document parsing
+pymupdf>=1.23.0
+pypdf
+python-docx
+odfpy
+openpyxl
+python-pptx
+
+# Web server
+fastapi>=0.100.0
+uvicorn>=0.20.0
+python-multipart
+
+# LLM backends
+ollama>=0.3.0  # Local LLM (default, sovereign)
+
+# Optional: Claude API for NLI (alternative to Ollama)
+# Uncomment if you want Claude support without local GPU
+# anthropic>=0.39.0
+
+# Utilities
+rich
+pandas>=2.0.0

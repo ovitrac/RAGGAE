@@ -28,3 +28,4 @@ dependencies:
   - pip:
       - rank-bm25
       - ollama           # python client for your local Ollama
+      - anthropic>=0.39.0  # optional: Claude API for NLI (alternative to Ollama)

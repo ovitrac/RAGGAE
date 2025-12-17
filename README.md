@@ -13,7 +13,6 @@
 [![Python](https://img.shields.io/badge/Python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green.svg)](https://fastapi.tiangolo.com/)
-[![DeepWiki](https://img.shields.io/badge/Docs-DeepWiki-purple.svg)](https://deepwiki.com/ovitrac/RAGGAE)
 
 ---
 
@@ -78,15 +77,19 @@ The system is designed with a **document-agnostic semantic core** and **pluggabl
 
 🔍 **Hybrid Retrieval**: Dense (FAISS) + Sparse (BM25) with configurable fusion
 
-📄 **Multi-Format Support**: PDF, DOCX, ODT, TXT, MD with layout-aware parsing
+📄 **Multi-Format Support**: PDF, DOCX, PPTX, XLSX, ODT, ODP, ODS, TXT, MD, CSV, ZIP with Pandoc + native fallbacks
 
 🎯 **NLI Compliance**: Automatic requirement satisfaction checking via Ollama (Mistral, Llama3)
 
 📊 **Fit Scoring**: Weighted requirement verdicts with exportable audit trails (JSON, CSV)
 
-🌐 **Web UI**: Modern, responsive interface for upload, index, search, and scoring
+🌐 **Web UI v2.0**: Modern drag-and-drop interface with batch upload, progress tracking, and job queue
 
-🔌 **RESTful API**: FastAPI backend for integration with existing workflows
+🔌 **RESTful API**: FastAPI backend with async indexing and job management
+
+🤖 **MCP Integration**: Model Context Protocol server for Claude Desktop/Code integration
+
+⚡ **Async Processing**: Background indexing with SQLite job queue, parallel workers, progress polling
 
 🧪 **Fully Tested**: Comprehensive test suite with mocked NLI for CI/CD
 
@@ -299,12 +302,14 @@ RAGGAE/
 │   ├── index_faiss.py             # FAISS vector index + metadata
 │   ├── retriever.py               # Hybrid retrieval (dense + sparse)
 │   ├── scoring.py                 # Fit scoring from NLI verdicts
-│   └── nli_ollama.py              # Local NLI via Ollama
+│   ├── nli_ollama.py              # Local NLI via Ollama
+│   └── worker.py                  # Background indexing worker + SQLite job queue
 ├── io/                            # Document parsers
 │   ├── pdf.py                     # PDF parsing (PyMuPDF)
-│   ├── tables.py                  # Table extraction (future)
-│   └── textloaders.py             # DOCX, ODT, TXT, MD loaders
-├── adapters/                      # Domain-specific adapters (future)
+│   ├── textloaders.py             # DOCX, ODT, TXT, MD loaders
+│   ├── ingest.py                  # Unified ingestion (Pandoc + native fallbacks)
+│   └── tables.py                  # Table extraction (future)
+├── adapters/                      # Domain-specific adapters
 │   ├── tenders.py                 # Tender-specific logic
 │   ├── cv.py                      # CV/resume parsing
 │   └── reports.py                 # Technical report adapters
@@ -313,9 +318,12 @@ RAGGAE/
 │   ├── search.py                  # Semantic search CLI
 │   ├── quickscore.py              # NLI-based scoring CLI
 │   └── demo_app.py                # FastAPI web application
-├── web/                           # Frontend UI
-│   ├── index.html                 # Single-page app
-│   ├── script.js                  # Vanilla JS (no framework)
+├── MCP/                           # Model Context Protocol integration
+│   ├── raggae_mcp_server.py       # MCP server for Claude Desktop/Code
+│   └── README.md                  # MCP configuration guide
+├── web/                           # Frontend UI v2.0
+│   ├── index.html                 # Single-page app with drop zone
+│   ├── script.js                  # Vanilla JS with async support
 │   └── styles.css                 # Modern dark/light theme
 ├── tests/                         # Test suite
 │   ├── conftest.py                # Pytest fixtures
@@ -453,15 +461,43 @@ mamba install -c pytorch faiss-gpu
 - `pymupdf` (fitz) — PDF parsing with layout
 - `pypdf` — Fallback PDF reader
 - `python-docx` — DOCX parsing
-- `odfpy` — ODT parsing
+- `odfpy` — ODT/ODP/ODS parsing
+- `python-pptx` — PPTX parsing (presentations)
+- `openpyxl` — XLSX parsing (spreadsheets)
+- `pandoc` — Universal document conversion (optional but recommended)
 
 **Web**:
 - `fastapi` — API framework
 - `uvicorn` — ASGI server
 - `pydantic` — Data validation
+- `aiofiles` — Async file handling
+
+**MCP Integration** (optional):
+- `mcp[cli]` — Model Context Protocol SDK
 
 **Testing**:
 - `pytest` — Test framework
+
+### Pandoc Installation (Recommended)
+
+Pandoc provides superior document conversion quality. Install it system-wide:
+
+```bash
+# Ubuntu/Debian
+sudo apt-get install pandoc
+
+# macOS
+brew install pandoc
+
+# Windows
+choco install pandoc
+# or download from https://pandoc.org/installing.html
+
+# Verify installation
+pandoc --version
+```
+
+RAGGAE will automatically use Pandoc when available, with native Python fallbacks otherwise.
 
 ---
 
@@ -594,14 +630,21 @@ PYTHONPATH=. uvicorn RAGGAE.cli.demo_app:app --host 0.0.0.0 --port 8000 --reload
 
 Open [http://localhost:8000](http://localhost:8000) in your browser.
 
-**Features**:
-- **Index Tab**: Upload documents (PDF, DOCX, TXT, ODT, MD, or ZIP), configure indexing parameters
+**Features (v2.0)**:
+- **Index Tab**:
+  - Large drag-and-drop zone for batch uploads
+  - Support for PDF, DOCX, PPTX, XLSX, ODT, ODP, ODS, TXT, MD, CSV, ZIP, and more
+  - File list with individual remove buttons
+  - Configurable indexing (model, workers, E5 prefixes, Pandoc preference)
+  - Real-time progress tracking with cancel option
+  - Background indexing with job queue persistence
 - **Search Tab**: Semantic search with provenance (file, page, block, score)
 - **Quickscore Tab**: NLI-based compliance checking with audit trail export (JSON/CSV)
+- **Jobs Tab**: Monitor and manage indexing jobs (running, completed, failed, cancelled)
 
-**Keyboard shortcuts**:
-- `Cmd/Ctrl + K` — Focus search input
-- `Esc` — Clear current form
+**Status Indicators**:
+- Health dot (green/gray) — Backend connectivity
+- Pandoc badge — Shows if Pandoc is available for enhanced parsing
 
 ---
 
@@ -783,6 +826,145 @@ curl -X POST http://localhost:8000/quickscore/export \
     "format": "csv"
   }' > quickscore.csv
 ```
+
+#### Async Indexing (v2.0)
+
+**Start background indexing job**:
+```bash
+curl -X POST http://localhost:8000/index-async \
+  -H "Content-Type: application/json" \
+  -d '{
+    "key": "20251217-143022",
+    "index_path": "./tender.idx",
+    "model": "intfloat/multilingual-e5-small",
+    "e5": true,
+    "prefer_pandoc": true,
+    "min_chars": 40,
+    "workers": 4
+  }'
+```
+
+**Response**:
+```json
+{
+  "job_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "status": "running",
+  "message": "Indexing job started"
+}
+```
+
+**Check job progress**:
+```bash
+curl http://localhost:8000/job/a1b2c3d4-e5f6-7890-abcd-ef1234567890
+```
+
+**Response**:
+```json
+{
+  "job_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "status": "running",
+  "index_path": "./tender.idx",
+  "progress": {
+    "processed": 45,
+    "total": 100,
+    "percent": 45.0,
+    "chunks": 1234,
+    "current_file": "document.pdf"
+  },
+  "created_at": "2025-12-17T14:30:22"
+}
+```
+
+**Cancel job**:
+```bash
+curl -X POST http://localhost:8000/job/a1b2c3d4-e5f6-7890-abcd-ef1234567890/cancel
+```
+
+**List all jobs**:
+```bash
+# All jobs
+curl http://localhost:8000/jobs
+
+# Filter by status
+curl "http://localhost:8000/jobs?status=running"
+```
+
+#### Batch Upload
+
+**Upload multiple files**:
+```bash
+curl -F "files=@tender1.pdf" -F "files=@data.xlsx" -F "files=@slides.pptx" \
+  http://localhost:8000/upload-batch
+```
+
+**Response**:
+```json
+{
+  "ok": true,
+  "key": "20251217-143022",
+  "files": ["tender1.pdf", "data.xlsx", "slides.pptx"],
+  "count": 3
+}
+```
+
+---
+
+## MCP Integration
+
+RAGGAE includes a Model Context Protocol (MCP) server for integration with Claude Desktop and Claude Code.
+
+### Available Tools
+
+| Tool | Description |
+|------|-------------|
+| `raggae_health()` | Check system status (Ollama, CUDA, disk) |
+| `raggae_list_indexes()` | List available FAISS indexes |
+| `raggae_index_info(path)` | Get index metadata |
+| `raggae_index(files, path)` | Index documents |
+| `raggae_search(query, path)` | Hybrid semantic search |
+| `raggae_quickscore(reqs, path)` | NLI compliance scoring |
+
+### Configuration
+
+**Claude Desktop** (`~/.config/claude/claude_desktop_config.json` on Linux):
+```json
+{
+  "mcpServers": {
+    "raggae": {
+      "command": "python",
+      "args": ["/path/to/RAGGAE/MCP/raggae_mcp_server.py"],
+      "env": {
+        "RAGGAE_DEFAULT_MODEL": "intfloat/multilingual-e5-small",
+        "RAGGAE_OLLAMA_MODEL": "mistral"
+      }
+    }
+  }
+}
+```
+
+**Claude Code** (`.mcp.json` in project root or `~/.claude/mcp.json`):
+```json
+{
+  "mcpServers": {
+    "raggae": {
+      "command": "/path/to/conda/envs/adservio-raggae/bin/python",
+      "args": ["/path/to/RAGGAE/MCP/raggae_mcp_server.py"]
+    }
+  }
+}
+```
+
+### Usage Examples
+
+Once configured, use natural language in Claude:
+
+> "Index the PDF files in /data/tenders/ and save as tender_index"
+
+> "Search for ISO 27001 certification requirements in tender_index"
+
+> "Check if the tender meets these requirements: Provider must be ISO certified, Platform supports Kubernetes"
+
+See `MCP/README.md` for detailed configuration and troubleshooting.
 
 ---
 
@@ -1242,7 +1424,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 **Dr. Olivier Vitrac, PhD, HDR**
 - Email: [olivier.vitrac@adservio.com](mailto:olivier.vitrac@adservio.com)
 - Organization: **Adservio**
-- Date: October 31, 2025
+- Date: December 17, 2025
 
 ---
 

@@ -1,208 +1,1566 @@
 /**
- * RAGGAE Web UI - Styles
+ * RAGGAE Web UI v2.0 - Styles
  *
  * Modern dark/light theme with CSS variables for the RAGGAE interface.
- * Responsive design with accessible color schemes and smooth transitions.
+ * Enhanced with batch upload drop zone, progress tracking, and job queue views.
  *
  * Design Features:
  * - Automatic dark/light mode based on system preference
  * - Adservio brand colors (orange accent: #FF9802)
  * - Glassmorphism effects with backdrop blur
  * - Responsive layout with CSS Grid
+ * - Large drop zone for batch uploads
+ * - Progress bars and job queue styling
  *
  * @author Dr. Olivier Vitrac, PhD, HDR
  * @email olivier.vitrac@adservio.com
  * @organization Adservio
- * @date October 31, 2025
+ * @date December 17, 2025
  * @license MIT
  */
 
-:root{
+/* =============================================================================
+   CSS Variables
+   ============================================================================= */
+
+:root {
   --bg: #0f1115;
   --panel: #151821;
-  --panel-2:#1b2030;
+  --panel-2: #1b2030;
   --text: #e6e6e6;
-  --muted:#a8b0c0;
-  --brand:#FF9802;   /* Adservio orange accent */
-  --accent:#4CAF50;  /* supportive green */
-  --stroke:#2a2f3e;
+  --muted: #a8b0c0;
+  --brand: #FF9802;       /* Adservio orange accent */
+  --accent: #4CAF50;      /* supportive green */
+  --danger: #e57373;      /* red for errors/cancel */
+  --warning: #ffc107;     /* yellow for warnings */
+  --stroke: #2a2f3e;
   --shadow: 0 10px 30px rgba(0,0,0,.35);
-  --radius:14px;
+  --radius: 14px;
 }
 
-@media (prefers-color-scheme: light){
-  :root{
-    --bg:#f7f8fb;
-    --panel:#ffffff;
-    --panel-2:#f2f4f8;
-    --text:#1b2130;
-    --muted:#556070;
-    --stroke:#e1e5ef;
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f7f8fb;
+    --panel: #ffffff;
+    --panel-2: #f2f4f8;
+    --text: #1b2130;
+    --muted: #556070;
+    --stroke: #e1e5ef;
     --shadow: 0 8px 24px rgba(16, 24, 40, .08);
   }
 }
 
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0; padding:0;
-  background:linear-gradient(160deg,var(--bg),#0b0d12 40%, var(--panel-2) 120%);
-  color:var(--text); font: 15px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+/* =============================================================================
+   Reset & Base
+   ============================================================================= */
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(160deg, var(--bg), #0b0d12 40%, var(--panel-2) 120%);
+  color: var(--text);
+  font: 15px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
 }
 
-.app-header{
-  display:flex; align-items:center; justify-content:space-between;
-  padding:18px 24px; position:sticky; top:0; z-index:10;
+/* =============================================================================
+   Header
+   ============================================================================= */
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
   backdrop-filter: blur(10px);
-  background:color-mix(in oklab, var(--panel) 90%, transparent);
-  border-bottom:1px solid var(--stroke);
+  background: color-mix(in oklab, var(--panel) 90%, transparent);
+  border-bottom: 1px solid var(--stroke);
 }
-.brand{display:flex; align-items:center; gap:14px}
-.logo{
-  width:42px; height:42px; border-radius:10px; display:grid; place-items:center;
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.logo {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
   background: radial-gradient(120% 120% at 20% 20%, var(--brand), #ffb34a 60%, #fff0d8);
-  color:#111; font-weight:800;
+  color: #111;
+  font-weight: 800;
   box-shadow: var(--shadow);
 }
-.titles h1{margin:0; font-size:20px; letter-spacing:.4px}
-.titles p{margin:2px 0 0; color:var(--muted); font-size:13px}
 
-.status{display:flex; align-items:center; gap:8px; color:var(--muted)}
-.dot{
-  width:10px; height:10px; border-radius:50%;
-  background:#999; box-shadow:0 0 0 3px rgba(0,0,0,.1) inset;
-}
-.dot-on{ background: var(--accent); }
-.dot-off{ background: #999; }
-
-.container{
-  max-width:1100px; margin:32px auto; padding: 0 16px;
+.titles h1 {
+  margin: 0;
+  font-size: 20px;
+  letter-spacing: .4px;
 }
 
-.tabs{display:flex; gap:8px; margin-bottom:16px}
-.tab{
-  border:1px solid var(--stroke); background:var(--panel);
-  color:var(--text); padding:10px 14px; border-radius:10px; cursor:pointer;
-}
-.tab.active{ background: color-mix(in oklab, var(--brand) 18%, var(--panel) 82%); border-color: color-mix(in oklab, var(--brand) 35%, var(--stroke) 65%); }
-
-.tabpanel{ display:none; }
-.tabpanel.active{ display:block; }
-
-.card{
-  background:var(--panel); border:1px solid var(--stroke);
-  border-radius: var(--radius); padding:18px; box-shadow: var(--shadow);
-}
-.card h2{ margin-top:0 }
-
-.grid{
-  display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap:12px;
-  align-items:end;
-}
-label{ display:flex; flex-direction:column; gap:6px; font-weight:600; color:var(--muted) }
-label.inline{ flex-direction:row; align-items:center; gap:10px; margin-top:8px }
-
-input, textarea{
-  width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--stroke);
-  background:var(--panel-2); color:var(--text); outline:none;
-}
-textarea{ resize:vertical; }
-input:focus, textarea:focus{ border-color: color-mix(in oklab, var(--brand) 40%, var(--stroke) 60%) }
-
-.actions{ margin-top:8px }
-.btn{
-  appearance:none; border:none;
-  background:linear-gradient(180deg, color-mix(in oklab, var(--brand) 88%, #fff 12%), var(--brand));
-  color:#111; font-weight:700; padding:10px 16px; border-radius:12px; cursor:pointer;
-  box-shadow:0 6px 18px rgba(255,152,2,.25);
-}
-.btn:active{ transform: translateY(1px); }
-
-.output, .list{
-  margin-top:14px; background:var(--panel-2); border:1px solid var(--stroke);
-  border-radius:10px; padding:12px; overflow:auto;
-}
-.hit{
-  border-bottom:1px dashed var(--stroke); padding:10px 6px;
-}
-.hit:last-child{ border-bottom:none; }
-.muted{ color:var(--muted) }
-
-.app-footer{
-  text-align:center; color:var(--muted); padding:24px; margin-top:24px;
-  border-top:1px solid var(--stroke);
-}
-code{ background: color-mix(in oklab, var(--panel-2) 80%, #000 20%); padding:2px 6px; border-radius:6px; }
-
-/* uploader button */
-.uploader{ display:flex; align-items:center; gap:12px; margin-bottom:10px; flex-wrap:wrap }
-.uploader input[type=file]{ padding:8px; background:var(--panel-2); border:1px solid var(--stroke); border-radius:10px }
-
-#exts{
-  min-width:120px; height:auto;
-  background:var(--panel-2); color:var(--text);
-  border:1px solid var(--stroke); border-radius:10px; padding:6px;
-}
-#exts option{ padding:4px 6px }
-
-
-/* drop zone */
-.dropzone{
-  width:100%; padding:20px; border:2px dashed var(--stroke);
-  border-radius:14px; display:flex; flex-direction:column; align-items:center; gap:8px;
-  background: color-mix(in oklab, var(--panel) 92%, var(--brand) 8%);
-}
-.dropzone.dragover{ border-color: var(--brand); background: color-mix(in oklab, var(--panel) 85%, var(--brand) 15%); }
-.pickers{ display:flex; gap:10px; flex-wrap:wrap; align-items:center }
-.btn-like{
-  display:inline-block; border:1px solid var(--stroke); border-radius:10px; padding:8px 12px;
-  background: var(--panel-2); cursor:pointer; user-select:none;
+.titles p {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 13px;
 }
 
-/* result badges */
-.rationale{
-  margin-top:6px; padding:8px 10px; border:1px solid var(--stroke);
-  background: color-mix(in oklab, var(--panel-2) 85%, #fff 15%);
-  border-radius:10px; font-size:13px; color: var(--text);
-}
-.badge{
-  display:inline-flex; align-items:center; gap:6px;
-  font-size:12px; font-weight:600; padding:3px 8px; border-radius:999px;
-  background: color-mix(in oklab, var(--panel-2) 80%, var(--brand) 20%);
-  border:1px solid var(--stroke);
-  margin-right:8px;
-}
-.badge .emoji{ font-size:14px }
-.badge.warn{
-  background: color-mix(in oklab, #ffcc00 35%, var(--panel-2) 65%);
-  border-color: color-mix(in oklab, #cc9900 45%, var(--stroke) 55%);
-}
-.fileline{
-  display:flex; align-items:center; gap:8px; margin:4px 0 6px;
+.status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   color: var(--muted);
 }
-.filename{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
 
-/* additional layout for results */
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #999;
+  box-shadow: 0 0 0 3px rgba(0,0,0,.1) inset;
+}
+
+.dot-on { background: var(--accent); }
+.dot-off { background: #999; }
+
+.badge-success {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* =============================================================================
+   Container & Tabs
+   ============================================================================= */
+
+.container {
+  max-width: 1100px;
+  margin: 32px auto;
+  padding: 0 16px;
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.tab {
+  border: 1px solid var(--stroke);
+  background: var(--panel);
+  color: var(--text);
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.tab:hover {
+  background: color-mix(in oklab, var(--brand) 10%, var(--panel) 90%);
+}
+
+.tab.active {
+  background: color-mix(in oklab, var(--brand) 18%, var(--panel) 82%);
+  border-color: color-mix(in oklab, var(--brand) 35%, var(--stroke) 65%);
+}
+
+.tabpanel { display: none; }
+.tabpanel.active { display: block; }
+
+/* =============================================================================
+   Cards
+   ============================================================================= */
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+
+.card h2 { margin-top: 0; }
+
+/* =============================================================================
+   Drop Zone (Large)
+   ============================================================================= */
+
+.dropzone-large {
+  position: relative;
+  width: 100%;
+  min-height: 200px;
+  padding: 32px;
+  border: 2px dashed var(--stroke);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in oklab, var(--panel) 92%, var(--brand) 8%);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.dropzone-large:hover {
+  border-color: color-mix(in oklab, var(--brand) 50%, var(--stroke) 50%);
+  background: color-mix(in oklab, var(--panel) 88%, var(--brand) 12%);
+}
+
+.dropzone-content {
+  text-align: center;
+}
+
+.dropzone-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.dropzone-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.dropzone-subtitle {
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.dropzone-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.dropzone-overlay {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in oklab, var(--brand) 20%, var(--panel) 80%);
+  border: 2px solid var(--brand);
+  border-radius: var(--radius);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--brand);
+  z-index: 5;
+}
+
+.dropzone-overlay.active {
+  display: flex;
+}
+
+/* =============================================================================
+   File List
+   ============================================================================= */
+
+.file-list-container {
+  margin-top: 16px;
+  background: var(--panel-2);
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.file-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--stroke);
+  font-weight: 600;
+}
+
+.file-list {
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  transition: background 0.15s ease;
+}
+
+.file-item:hover {
+  background: color-mix(in oklab, var(--brand) 5%, var(--panel-2) 95%);
+}
+
+.file-icon { font-size: 18px; }
+.file-name {
+  flex: 1;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.file-size { font-size: 12px; }
+
+.btn-remove {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.btn-remove:hover {
+  background: color-mix(in oklab, var(--danger) 20%, transparent 80%);
+  color: var(--danger);
+}
+
+/* =============================================================================
+   Index Controls
+   ============================================================================= */
+
+.index-controls {
+  margin-top: 16px;
+  padding: 16px;
+  background: var(--panel);
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius);
+}
+
+.control-row {
+  display: flex;
+  gap: 16px;
+  align-items: end;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.control-row:last-child {
+  margin-bottom: 0;
+}
+
+.control-row label {
+  flex: 1;
+  min-width: 120px;
+}
+
+.control-row label.inline {
+  flex: 0 0 auto;
+  min-width: auto;
+}
+
+/* =============================================================================
+   Progress Section
+   ============================================================================= */
+
+.progress-section {
+  margin-top: 16px;
+  padding: 16px;
+  background: var(--panel);
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius);
+}
+
+.progress-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.progress-bar-container {
+  height: 8px;
+  background: var(--panel-2);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--brand), #ffb34a);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-stats {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+  color: var(--muted);
+  flex-wrap: wrap;
+}
+
+.progress-error {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: color-mix(in oklab, var(--danger) 15%, var(--panel-2) 85%);
+  border: 1px solid color-mix(in oklab, var(--danger) 30%, var(--stroke) 70%);
+  border-radius: 8px;
+  color: var(--danger);
+  font-size: 14px;
+}
+
+/* =============================================================================
+   Jobs List
+   ============================================================================= */
+
+.jobs-controls {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.jobs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.job-item {
+  padding: 14px 16px;
+  background: var(--panel-2);
+  border: 1px solid var(--stroke);
+  border-radius: 10px;
+}
+
+.job-item.status-running {
+  border-left: 3px solid var(--brand);
+}
+
+.job-item.status-completed {
+  border-left: 3px solid var(--accent);
+}
+
+.job-item.status-failed {
+  border-left: 3px solid var(--danger);
+}
+
+.job-item.status-cancelled {
+  border-left: 3px solid var(--muted);
+}
+
+.job-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.job-id {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.job-index {
+  font-weight: 600;
+  flex: 1;
+}
+
+.job-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.progress-bar-mini {
+  flex: 1;
+  height: 4px;
+  background: var(--stroke);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--brand);
+  transition: width 0.3s ease;
+}
+
+.job-stats {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.job-time {
+  font-size: 12px;
+}
+
+.job-error {
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: color-mix(in oklab, var(--danger) 10%, var(--panel) 90%);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--danger);
+}
+
+/* =============================================================================
+   Buttons
+   ============================================================================= */
+
+.btn {
+  appearance: none;
+  border: none;
+  background: linear-gradient(180deg, color-mix(in oklab, var(--brand) 88%, #fff 12%), var(--brand));
+  color: #111;
+  font-weight: 700;
+  padding: 10px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(255,152,2,.25);
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(255,152,2,.35);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-primary {
+  background: linear-gradient(180deg, color-mix(in oklab, var(--brand) 88%, #fff 12%), var(--brand));
+}
+
+.btn-secondary {
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--stroke);
+  box-shadow: none;
+}
+
+.btn-secondary:hover {
+  background: color-mix(in oklab, var(--brand) 10%, var(--panel-2) 90%);
+  box-shadow: none;
+}
+
+.btn-danger {
+  background: linear-gradient(180deg, color-mix(in oklab, var(--danger) 88%, #fff 12%), var(--danger));
+  box-shadow: 0 6px 18px rgba(229,115,115,.25);
+}
+
+.btn-small {
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: 8px;
+}
+
+/* =============================================================================
+   Form Elements
+   ============================================================================= */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+  align-items: end;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 600;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+label.inline {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+input, textarea, select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--stroke);
+  background: var(--panel-2);
+  color: var(--text);
+  outline: none;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+input[type="checkbox"] {
+  width: auto;
+}
+
+input[type="number"] {
+  max-width: 100px;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: color-mix(in oklab, var(--brand) 40%, var(--stroke) 60%);
+}
+
+select {
+  cursor: pointer;
+}
+
+.actions {
+  margin-top: 12px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* =============================================================================
+   Output & Results
+   ============================================================================= */
+
+.output, .list {
+  margin-top: 14px;
+  background: var(--panel-2);
+  border: 1px solid var(--stroke);
+  border-radius: 10px;
+  padding: 12px;
+  overflow: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
+  white-space: pre-wrap;
+}
+
+.hit {
+  border-bottom: 1px dashed var(--stroke);
+  padding: 12px 8px;
+}
+
+.hit:last-child {
+  border-bottom: none;
+}
+
+.hit-snippet {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.muted { color: var(--muted); }
+
+/* =============================================================================
+   Badges
+   ============================================================================= */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--panel-2) 80%, var(--brand) 20%);
+  border: 1px solid var(--stroke);
+  margin-right: 8px;
+}
+
+.badge .emoji { font-size: 14px; }
+
+.badge.warn {
+  background: color-mix(in oklab, var(--warning) 35%, var(--panel-2) 65%);
+  border-color: color-mix(in oklab, #cc9900 45%, var(--stroke) 55%);
+}
+
+.badge-running {
+  background: color-mix(in oklab, var(--brand) 25%, var(--panel-2) 75%);
+  color: var(--brand);
+}
+
+.badge-completed {
+  background: color-mix(in oklab, var(--accent) 25%, var(--panel-2) 75%);
+  color: var(--accent);
+}
+
+.badge-failed {
+  background: color-mix(in oklab, var(--danger) 25%, var(--panel-2) 75%);
+  color: var(--danger);
+}
+
+.badge-cancelled {
+  background: color-mix(in oklab, var(--muted) 25%, var(--panel-2) 75%);
+}
+
+/* =============================================================================
+   Result Details
+   ============================================================================= */
+
+.fileline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 6px;
+  color: var(--muted);
+  flex-wrap: wrap;
+}
+
+.filename {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
+}
+
+.rationale {
+  margin-top: 6px;
+  padding: 8px 10px;
+  border: 1px solid var(--stroke);
+  background: color-mix(in oklab, var(--panel-2) 85%, #fff 15%);
+  border-radius: 10px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+/* Evaluated clauses accordion */
 details.eval {
-  margin-top:10px; border:1px solid var(--stroke); border-radius:10px;
+  margin-top: 10px;
+  border: 1px solid var(--stroke);
+  border-radius: 10px;
   background: var(--panel-2);
 }
-details.eval > summary {
-  cursor:pointer; padding:8px 10px; font-weight:600; list-style:none;
-}
-details.eval > summary::-webkit-details-marker { display:none; }
-.eval-list { padding:8px 10px; }
-.eval-item { border-top:1px dashed var(--stroke); padding:8px 0; }
-.eval-item:first-child { border-top:none; }
-.eval-head { display:flex; align-items:center; gap:8px; }
-.eval-rationale { margin-top:6px; padding:8px 10px; border:1px solid var(--stroke); border-radius:8px; font-size:13px; }
-.badge.label-Yes { background: color-mix(in oklab, #4CAF50 35%, var(--panel-2) 65%); }
-.badge.label-Partial { background: color-mix(in oklab, #ffc107 35%, var(--panel-2) 65%); }
-.badge.label-No { background: color-mix(in oklab, #e57373 35%, var(--panel-2) 65%); }
 
-/* export */
-#export-format{
-  border:1px solid var(--stroke); border-radius:10px; background:var(--panel-2);
-  color:var(--text); padding:8px 10px;
+details.eval > summary {
+  cursor: pointer;
+  padding: 8px 10px;
+  font-weight: 600;
+  list-style: none;
+  font-size: 13px;
+}
+
+details.eval > summary::-webkit-details-marker { display: none; }
+
+details.eval > summary::before {
+  content: "▸ ";
+}
+
+details.eval[open] > summary::before {
+  content: "▾ ";
+}
+
+.eval-list { padding: 8px 10px; }
+
+.eval-item {
+  border-top: 1px dashed var(--stroke);
+  padding: 10px 0;
+}
+
+.eval-item:first-child { border-top: none; }
+
+.eval-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.eval-rationale {
+  margin-top: 6px;
+  padding: 8px 10px;
+  border: 1px solid var(--stroke);
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+/* Label badges */
+.badge.label-Yes {
+  background: color-mix(in oklab, var(--accent) 35%, var(--panel-2) 65%);
+}
+
+.badge.label-Partial {
+  background: color-mix(in oklab, var(--warning) 35%, var(--panel-2) 65%);
+}
+
+.badge.label-No {
+  background: color-mix(in oklab, var(--danger) 35%, var(--panel-2) 65%);
+}
+
+/* =============================================================================
+   Export Format Select
+   ============================================================================= */
+
+#export-format {
+  border: 1px solid var(--stroke);
+  border-radius: 10px;
+  background: var(--panel-2);
+  color: var(--text);
+  padding: 8px 10px;
+  min-width: 80px;
+}
+
+/* =============================================================================
+   Footer
+   ============================================================================= */
+
+.app-footer {
+  text-align: center;
+  color: var(--muted);
+  padding: 24px;
+  margin-top: 24px;
+  border-top: 1px solid var(--stroke);
+  font-size: 13px;
+}
+
+/* =============================================================================
+   Utilities
+   ============================================================================= */
+
+code {
+  background: color-mix(in oklab, var(--panel-2) 80%, #000 20%);
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
+}
+
+/* =============================================================================
+   Responsive
+   ============================================================================= */
+
+@media (max-width: 768px) {
+  .app-header {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+
+  .brand {
+    justify-content: center;
+  }
+
+  .tabs {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .dropzone-large {
+    min-height: 180px;
+    padding: 24px 16px;
+  }
+
+  .dropzone-actions {
+    flex-direction: column;
+  }
+
+  .control-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .control-row label {
+    width: 100%;
+  }
+
+  .progress-stats {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .job-header {
+    flex-wrap: wrap;
+  }
+
+  .fileline {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}
+
+/* =============================================================================
+   Scrollbar Styling
+   ============================================================================= */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--panel-2);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--stroke);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in oklab, var(--brand) 30%, var(--stroke) 70%);
+}
+
+/* =============================================================================
+   Index Success Card
+   ============================================================================= */
+
+.index-success {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: color-mix(in oklab, var(--accent) 10%, var(--panel) 90%);
+  border: 1px solid color-mix(in oklab, var(--accent) 30%, var(--stroke) 70%);
+  border-radius: 12px;
+}
+
+.success-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.success-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.success-stats {
+  display: flex;
+  gap: 16px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.success-stats strong {
+  color: var(--text);
+}
+
+.success-path {
+  margin-top: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* =============================================================================
+   Search Results (Compact)
+   ============================================================================= */
+
+.search-result {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--stroke);
+}
+
+.search-result:last-child {
+  border-bottom: none;
+}
+
+.result-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.result-rank {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: var(--panel);
+  border: 1px solid var(--stroke);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--brand);
+  flex-shrink: 0;
+}
+
+.result-file {
+  font-weight: 600;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.result-loc {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.result-score {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  color: var(--brand);
+  font-weight: 600;
+}
+
+.result-snippet {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.4;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* =============================================================================
+   Quickscore Results (Compact)
+   ============================================================================= */
+
+.qs-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  background: var(--panel);
+  border: 1px solid var(--stroke);
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.qs-score {
+  font-size: 48px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.qs-score span {
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.qs-score.score-high { color: var(--accent); }
+.qs-score.score-mid { color: var(--warning); }
+.qs-score.score-low { color: var(--danger); }
+
+.qs-summary {
+  display: flex;
+  gap: 16px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.qs-yes { color: var(--accent); }
+.qs-partial { color: var(--warning); }
+.qs-no { color: var(--danger); }
+
+.qs-item {
+  padding: 10px 12px;
+  border: 1px solid var(--stroke);
+  border-radius: 8px;
+  margin-bottom: 6px;
+  border-left: 3px solid var(--stroke);
+}
+
+.qs-item.verdict-yes { border-left-color: var(--accent); }
+.qs-item.verdict-partial { border-left-color: var(--warning); }
+.qs-item.verdict-no { border-left-color: var(--danger); }
+
+.qs-item-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.qs-verdict {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.verdict-yes .qs-verdict {
+  background: color-mix(in oklab, var(--accent) 20%, var(--panel) 80%);
+  color: var(--accent);
+}
+
+.verdict-partial .qs-verdict {
+  background: color-mix(in oklab, var(--warning) 20%, var(--panel) 80%);
+  color: var(--warning);
+}
+
+.verdict-no .qs-verdict {
+  background: color-mix(in oklab, var(--danger) 20%, var(--panel) 80%);
+  color: var(--danger);
+}
+
+.qs-req {
+  flex: 1;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.qs-evidence {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.qs-rationale {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.4;
+  padding-left: 32px;
+}
+
+.qs-warn {
+  color: var(--warning);
+}
+
+.qs-details {
+  margin-top: 8px;
+  margin-left: 32px;
+}
+
+.qs-details summary {
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.qs-evals {
+  margin-top: 6px;
+}
+
+.eval-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 12px;
+}
+
+.eval-label {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 11px;
+}
+
+.eval-label.label-Yes { background: color-mix(in oklab, var(--accent) 20%, var(--panel) 80%); color: var(--accent); }
+.eval-label.label-Partial { background: color-mix(in oklab, var(--warning) 20%, var(--panel) 80%); color: var(--warning); }
+.eval-label.label-No { background: color-mix(in oklab, var(--danger) 20%, var(--panel) 80%); color: var(--danger); }
+
+.eval-file {
+  flex: 1;
+  color: var(--muted);
+}
+
+.eval-score {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: var(--muted);
+}
+
+/* =============================================================================
+   Settings Button
+   ============================================================================= */
+
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--stroke);
+  background: var(--panel);
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 18px;
+  display: grid;
+  place-items: center;
+  transition: all 0.2s ease;
+}
+
+.btn-icon:hover {
+  background: color-mix(in oklab, var(--brand) 15%, var(--panel) 85%);
+  border-color: color-mix(in oklab, var(--brand) 30%, var(--stroke) 70%);
+}
+
+/* =============================================================================
+   Modal
+   ============================================================================= */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal {
+  background: var(--panel);
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--stroke);
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.btn-close {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 24px;
+  line-height: 1;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+}
+
+.btn-close:hover {
+  background: color-mix(in oklab, var(--danger) 15%, transparent 85%);
+  color: var(--danger);
+}
+
+.modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modal-footer {
+  padding: 16px 20px;
+  border-top: 1px solid var(--stroke);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.settings-section {
+  margin-bottom: 20px;
+}
+
+.settings-section:last-child {
+  margin-bottom: 0;
+}
+
+.settings-section h4 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.settings-section label {
+  margin-bottom: 10px;
+}
+
+/* =============================================================================
+   Compact Index Controls
+   ============================================================================= */
+
+.index-controls.compact {
+  padding: 12px 16px;
+}
+
+.index-controls.compact .control-row {
+  display: flex;
+  align-items: end;
+  gap: 12px;
+  margin-bottom: 0;
+}
+
+.index-controls.compact .control-row label {
+  flex: 1;
+}
+
+.index-settings-hint {
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+/* =============================================================================
+   Search Bar (Compact)
+   ============================================================================= */
+
+.search-form {
+  margin-bottom: 12px;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: var(--panel);
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius);
+}
+
+.search-index {
+  width: 120px;
+  flex-shrink: 0;
+}
+
+.search-query {
+  flex: 1;
+}
+
+.search-k, .search-ctx {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-direction: row;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.search-k input {
+  width: 60px;
+}
+
+.search-ctx input {
+  width: 50px;
+}
+
+/* =============================================================================
+   Quickscore Layout (Compact)
+   ============================================================================= */
+
+.qs-topbar {
+  display: flex;
+  gap: 12px;
+  align-items: end;
+  padding: 12px;
+  background: var(--panel);
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.qs-topbar > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.qs-topbar label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+}
+
+.profile-selector {
+  min-width: 180px;
+}
+
+.qs-index {
+  flex: 1;
+  min-width: 120px;
+}
+
+.qs-topk {
+  width: 70px;
+}
+
+.qs-topk input {
+  width: 100%;
+}
+
+.qs-lang {
+  width: 80px;
+}
+
+.qs-requirements {
+  background: var(--panel);
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+}
+
+.qs-req-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--stroke);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.btn-text {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.btn-text:hover {
+  color: var(--danger);
+  background: color-mix(in oklab, var(--danger) 10%, transparent 90%);
+}
+
+.qs-requirements textarea {
+  border: none;
+  border-radius: 0 0 var(--radius) var(--radius);
+  resize: vertical;
+  min-height: 120px;
+}
+
+.qs-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.qs-export {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.qs-export select {
+  width: auto;
+  min-width: 80px;
+}
+
+/* =============================================================================
+   Profile Badge
+   ============================================================================= */
+
+.profile-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: color-mix(in oklab, var(--brand) 15%, var(--panel) 85%);
+  border: 1px solid color-mix(in oklab, var(--brand) 25%, var(--stroke) 75%);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* =============================================================================
+   Grep-like Context Display
+   ============================================================================= */
+
+.search-result.with-context {
+  padding: 6px 0;
+}
+
+.result-context {
+  margin-top: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--stroke);
+}
+
+.ctx-line {
+  padding: 3px 10px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+}
+
+.ctx-line:empty {
+  display: none;
+}
+
+/* Context before and after - grayed out */
+.ctx-before,
+.ctx-after {
+  background: var(--panel-2);
+  color: var(--muted);
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+/* Matched block - highlighted */
+.ctx-match {
+  background: color-mix(in oklab, var(--brand) 15%, var(--panel) 85%);
+  color: var(--text);
+  border-left: 3px solid var(--brand);
+  font-weight: 500;
+  padding: 4px 10px;
+}
+
+/* When no context, just the match */
+.search-result:not(.with-context) .result-context {
+  border: none;
+  background: transparent;
+}
+
+.search-result:not(.with-context) .ctx-match {
+  background: var(--panel-2);
+  border-radius: 6px;
+  border: 1px solid var(--stroke);
+  border-left: 3px solid var(--brand);
 }
